@@ -24,10 +24,22 @@ CommonJS에서는 `const { getMonthWeek } = require("@jaeyeong/week-utils")`로 
 ## 날짜와 주차 기준
 
 - 월 주차는 해당 월의 **1일이 포함된 주를 1주차**로 계산합니다. 월 주차 범위에는 이전 달 또는 다음 달 날짜가 포함될 수 있습니다.
-- 날짜를 받는 함수는 JavaScript의 `new Date(input)`으로 해석한 뒤 **실행 환경의 로컬 날짜**를 사용합니다.
+- 날짜를 받는 함수는 `Date` 객체 또는 날짜 문자열을 받아 **실행 환경의 로컬 날짜**를 사용합니다. 문자열은 JavaScript의 `new Date(input)` 규칙으로 해석하며, 입력 `Date` 객체는 변경하지 않습니다.
 - `"2024-01-22"` 같은 날짜 전용 문자열은 JavaScript에서 UTC 자정으로 해석되어, 일부 시간대에서는 로컬 날짜가 전날이 됩니다. 달력 날짜를 다룰 때는 `new Date(2024, 0, 22)`를 사용하세요. `Date` 생성자의 월은 0부터 시작합니다.
-- `getMonthWeekRange`는 로컬 자정, `getISOWeekRange`는 **UTC 자정**의 `Date` 객체를 반환합니다. 종료일은 마지막 날의 자정이며, 하루의 마지막 시각이 아닙니다.
-- 연도·월·주차에는 정수를 전달하세요. 범위 함수는 월 `1~12`, 월 주차 `1~6`, ISO 주차 `1~53` 범위를 검사하지만, 해당 월이나 ISO 연도에 그 주차가 실제로 존재하는지는 검사하지 않습니다.
+- `getMonthWeekRange`는 각 날짜의 로컬 자정, `getISOWeekRange`는 **UTC 자정**의 `Date` 객체를 반환합니다. 서머타임 전환으로 로컬 자정이 존재하지 않으면 JavaScript가 그 날짜의 유효한 시각으로 보정합니다. 종료일은 하루의 마지막 시각이 아닙니다.
+- 연도·월·주차에는 유한한 정수만 전달할 수 있습니다. 범위 함수는 월 `1~12`, 월 주차 `1~6`, ISO 주차 `1~53` 범위를 검사하지만, 해당 월이나 ISO 연도에 그 주차가 실제로 존재하는지는 검사하지 않습니다. 예를 들어 `getISOWeekRange(2021, 53)`은 2022년 1월 3일부터의 범위를 반환합니다.
+- 범위 함수의 연도 `0~99`는 해당 연도 그대로 계산합니다. 직접 `Date` 객체를 만들 때는 `new Date(1, 0, 1)`이 1901년이 된다는 점에 주의하세요. 이 경우 `setFullYear`로 연도를 지정할 수 있습니다.
+
+### 잘못된 입력
+
+- `Date`나 문자열이 아닌 날짜 입력, `"monday"`·`"sunday"` 이외의 `weekStart`는 `TypeError`를 발생시킵니다. `weekStart`를 생략하거나 `undefined`를 전달하면 기본값 `"monday"`를 사용합니다.
+- 유효하지 않은 날짜, `NaN`·무한대·소수·문자열 형태의 연도/월/주차, 허용 범위를 벗어난 월/주차는 `RangeError`를 발생시킵니다.
+- 입력 또는 계산에 필요한 날짜가 JavaScript `Date`의 표현 범위를 벗어나면 `RangeError`를 발생시킵니다.
+
+```ts
+getMonthWeekRange(2024, NaN, 1); // RangeError
+getISOWeekRange(2024, 1.5);     // RangeError
+```
 
 ## 기능
 
@@ -186,4 +198,4 @@ npm pack --dry-run
 - `npm test`: 빌드한 패키지의 공개 API를 테스트합니다.
 - `npm run check`: 타입 검사와 테스트를 실행합니다.
 
-버그 제보와 기여 방법은 [CONTRIBUTING.md](./CONTRIBUTING.md), npm 자동 배포 설정과 릴리스 절차는 [RELEASING.md](./RELEASING.md)를 참고하세요.
+버그 제보와 기여 방법은 [CONTRIBUTING.md](https://github.com/ababqw123/week-utils/blob/main/CONTRIBUTING.md), npm 자동 배포 설정과 릴리스 절차는 [RELEASING.md](https://github.com/ababqw123/week-utils/blob/main/RELEASING.md)를 참고하세요.

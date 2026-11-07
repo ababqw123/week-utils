@@ -1,6 +1,6 @@
 {
   "name": "@jaeyeong/week-utils",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Week utilities: month week + ISO week",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
